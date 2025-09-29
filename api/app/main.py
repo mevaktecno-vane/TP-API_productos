@@ -65,3 +65,41 @@ def create_product(product: ProductCreate):
     db.refresh(db_product)
     db.close()
     return db_product
+
+# Endpoint para actualizar producto
+
+
+@app.put("/products/{product_id}")
+def update_product(product_id: int, product: ProductCreate):
+    db = SessionLocal()
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not db_product:
+        db.close()
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    # Actualizar valores
+    db_product.name = product.name
+    db_product.description = product.description
+
+    db.commit()
+    db.refresh(db_product)
+    db.close()
+    return db_product
+
+# Endpoint para eliminar producto
+
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int):
+    db = SessionLocal()
+    db_product = db.query(Product).filter(Product.id == product_id).first()
+
+    if not db_product:
+        db.close()
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+
+    db.delete(db_product)
+    db.commit()
+    db.close()
+    return {"message": f"Producto con id {product_id} eliminado correctamente"}
